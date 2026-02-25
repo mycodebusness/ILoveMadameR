@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pour Madame R ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Great+Vibes&family=Montserrat:wght@300;500&display=swap');
+
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #050005;
+            font-family: 'Montserrat', sans-serif;
+            touch-action: none;
+        }
+        
+        canvas { display: block; }
+
+        /* --- UI FLOTTANTE (MENU) --- */
+        #menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        #menu-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+        #ui-panel {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 280px;
+            background: rgba(20, 0, 10, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            color: #fff;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 99;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        #ui-panel.open { transform: translateX(0); }
+        .ui-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #ffb7b2; }
+        input[type="color"] { width: 100%; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none; }
+        .signature { font-family: 'Great Vibes', cursive; font-size: 1.5rem; color: #ff6b81; text-align: right; margin-top: 10px; }
+
+        /* --- CONTENU CENTRAL --- */
+        #center-content {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+            width: 100%;
+        }
+
+        .main-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            background: linear-gradient(to bottom, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+            animation: floatText 3s ease-in-out infinite;
+            margin: 0;
+            line-height: 1;
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        /* --- BOUTON SURPRISE --- */
+        #surprise-btn {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            color: white;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(255, 100, 100, 0.3);
+            animation: pulseBtn 2s infinite;
+        }
+
+        #surprise-btn:hover {
+            background: rgba(255, 50, 50, 0.3);
+            border-color: #ff6b81;
+            box-shadow: 0 0 25px rgba(255, 100, 100, 0.6);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 0 15px rgba(255, 100, 100, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 100, 100, 0.6); }
+            100% { box-shadow: 0 0 15px rgba(255, 100, 100, 0.3); }
+        }
+
+        /* --- MODAL POÈME --- */
+        #poem-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #poem-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .poem-content {
+            background: linear-gradient(135deg, rgba(30,0,10,0.9), rgba(60,0,20,0.9));
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 100, 100, 0.4);
+            max-width: 90%;
+            width: 500px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 0 50px rgba(255, 0, 50, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        #poem-modal.active .poem-content {
+            transform: scale(1);
+        }
+
+        .poem-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #eee;
+            margin-bottom: 20px;
+            white-space: pre-line; /* Respecte les sauts de ligne */
+        }
+
+        .poem-highlight {
+            color: #ff6b81;
+            font-weight: bold;
+        }
+
+        .close-poem {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.7);
+            padding: 10px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-poem:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .main-name { font-size: 3.5rem; }
+            .poem-content { padding: 25px; }
+            .poem-text { font-size: 1rem; }
+        }
+    </style>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Bouton Menu -->
+    <div id="menu-btn" onclick="toggleMenu()">⚙️</div>
+
+    <!-- Panneau de Contrôle -->
+    <div id="ui-panel">
+        <div class="ui-group">
+            <label>Couleur de l'Amour</label>
+            <input type="color" id="colorPicker" value="#ff3366">
+        </div>
+        <div class="ui-group">
+            <label>Vitesse du Cœur</label>
+            <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1.5">
+        </div>
+        <div class="signature">Mr le Sage</div>
+    </div>
+
+    <!-- Contenu Central -->
+    <div id="center-content">
+        <h1 class="main-name">Madame R</h1>
+    </div>
+
+    <!-- Bouton Surprise -->
+    <button id="surprise-btn" onclick="showPoem()">Appuie pour voir ma surprise 🫢</button>
+
+    <!-- Modal Poème -->
+    <div id="poem-modal">
+        <div class="poem-content">
+            <h2 style="font-family:'Great Vibes'; color:#ff6b81; font-size:2.5rem; margin-top:0;">Ma Chère Madame R</h2>
+            <div class="poem-text">
+                Même occupé, je pense à toi.
+                Voici ce que j'ai créé pour te souhaiter une bonne Saint-Valentin et te dire à quel point tu comptes pour moi.
+
+                Je ne suis pas parfait, mais malgré mes défauts, laisse-moi te dire que tu es la femme la plus <span class="poem-highlight">magnifique et unique</span> que j'aie jamais rencontrée.
+
+                Personne n'a été, n'est et ne sera comme toi !
+                Un cœur en or, un sourire comme nulle part ailleurs.
+            </div>
+            <button class="close-poem" onclick="closePoem()">Fermer ❤️</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- 1. SCÈNE & CAMÉRA ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050005, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 24; // Un peu plus loin pour voir le cœur entier
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+
+        // --- 2. LE CŒUR DE PARTICULES (CORRIGÉ) ---
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 6000; // Plus de particules pour un cœur plus plein
+        
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorsArray = new Float32Array(particlesCount * 3);
+        const sizesArray = new Float32Array(particlesCount);
+        const randomnessArray = new Float32Array(particlesCount * 3);
+
+        const colorObj = new THREE.Color();
+
+        for(let i = 0; i < particlesCount; i++) {
+            // Formule Mathématique du Cœur (Standard)
+            // x = 16sin^3(t)
+            // y = 13cos(t) - 5cos(2t) - 2cos(3t) - cos(4t)
+            // Note: Pas de signe moins devant le 13, car en 3D Y+ est en haut.
+            // Cela place naturellement les creux en haut et la pointe en bas (Y négatif).
+            
+            const t = Math.random() * Math.PI * 2;
+            
+            // Calcul de la surface
+            const hx = 16 * Math.pow(Math.sin(t), 3);
+            const hy = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+            
+            // Remplissage du volume (Astuce pour avoir un cœur plein et pas creux)
+            // On prend un point aléatoire à l'intérieur du cœur en réduisant les coordonnées
+            const fillFactor = Math.pow(Math.random(), 0.35); // Concentre les points vers le centre pour éviter les trous
+            
+            const x = hx * fillFactor;
+            const y = hy * fillFactor;
+            const z = (Math.random() - 0.5) * 6 * fillFactor; // Épaisseur
+
+            posArray[i * 3] = x;
+            posArray[i * 3 + 1] = y;
+            posArray[i * 3 + 2] = z;
+
+            // Couleurs (Dégradé Rouge -> Or -> Blanc)
+            const rand = Math.random();
+            if(rand > 0.95) colorObj.setHex(0xffffff); // Étincelles blanches rares
+            else if(rand > 0.8) colorObj.setHex(0xffd700); // Or
+            else colorObj.setHex(0xff0040); // Rouge profond
+
+            colorsArray[i * 3] = colorObj.r;
+            colorsArray[i * 3 + 1] = colorObj.g;
+            colorsArray[i * 3 + 2] = colorObj.b;
+
+            sizesArray[i] = Math.random() * 0.35;
+
+            randomnessArray[i*3] = (Math.random() - 0.5) * 2;
+            randomnessArray[i*3+1] = (Math.random() - 0.5) * 2;
+            randomnessArray[i*3+2] = (Math.random() - 0.5) * 2;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+        particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizesArray, 1));
+        particlesGeometry.setAttribute('aRandom', new THREE.BufferAttribute(randomnessArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.4,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            transparent: true,
+            opacity: 0.9,
+            sizeAttenuation: true
+        });
+
+        const heartSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+        // On incline légèrement le cœur vers l'avant pour mieux le voir
+        heartSystem.rotation.x = 0.2; 
+        scene.add(heartSystem);
+
+        // --- 3. ÉTOILES ---
+        const starsGeo = new THREE.BufferGeometry();
+        const starsCount = 2000;
+        const starsPos = new Float32Array(starsCount * 3);
+        for(let i=0; i<starsCount*3; i++) {
+            starsPos[i] = (Math.random() - 0.5) * 100;
+        }
+        starsGeo.setAttribute('position', new THREE.BufferAttribute(starsPos, 3));
+        const starsMat = new THREE.PointsMaterial({color: 0xaaaaaa, size: 0.15, transparent: true, opacity: 0.6});
+        const stars = new THREE.Points(starsGeo, starsMat);
+        scene.add(stars);
+
+        // --- 4. POST-PROCESSING (BLOOM) ---
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 1.8; // Lueur très forte pour l'effet magique
+        bloomPass.radius = 0.7;
+
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- 5. ANIMATION ---
+        const clock = new THREE.Clock();
+        let beatSpeed = 1.5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Battement de cœur
+            const t = elapsedTime * beatSpeed;
+            const beat = Math.pow(Math.sin(t), 65) * 0.12; 
+            const beat2 = Math.pow(Math.sin(t + Math.PI), 65) * 0.06;
+            const scale = 1 + beat + beat2;
+
+            heartSystem.scale.set(scale, scale, scale);
+            
+            // Rotation douce
+            heartSystem.rotation.y = Math.sin(elapsedTime * 0.2) * 0.1;
+            heartSystem.rotation.z = Math.cos(elapsedTime * 0.15) * 0.05;
+
+            // Vibration des particules
+            const positions = particlesGeometry.attributes.position.array;
+            const randoms = particlesGeometry.attributes.aRandom.array;
+            
+            for(let i=0; i < particlesCount; i++) {
+                positions[i*3] += Math.sin(elapsedTime * 3 + randoms[i*3]) * 0.008;
+                positions[i*3+1] += Math.cos(elapsedTime * 3 + randoms[i*3+1]) * 0.008;
+                positions[i*3+2] += Math.sin(elapsedTime * 3 + randoms[i*3+2]) * 0.008;
+            }
+            particlesGeometry.attributes.position.needsUpdate = true;
+
+            stars.rotation.y = elapsedTime * 0.02;
+
+            controls.update();
+            composer.render();
+        }
+
+        animate();
+
+        // --- 6. GESTION UI & INTERACTION ---
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.toggleMenu = function() {
+            const panel = document.getElementById('ui-panel');
+            const btn = document.getElementById('menu-btn');
+            panel.classList.toggle('open');
+            btn.style.transform = panel.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+        }
+
+        const colorPicker = document.getElementById('colorPicker');
+        colorPicker.addEventListener('input', (e) => {
+            const newColor = new THREE.Color(e.target.value);
+            const colors = particlesGeometry.attributes.color.array;
+            for(let i=0; i < particlesCount; i++) {
+                const rand = Math.random();
+                if(rand > 0.95) { colors[i*3] = 1; colors[i*3+1] = 1; colors[i*3+2] = 1; }
+                else if (rand > 0.8) { colors[i*3] = 1; colors[i*3+1] = 0.84; colors[i*3+2] = 0; }
+                else { colors[i*3] = newColor.r; colors[i*3+1] = newColor.g; colors[i*3+2] = newColor.b; }
+            }
+            particlesGeometry.attributes.color.needsUpdate = true;
+        });
+
+        const speedSlider = document.getElementById('speedSlider');
+        speedSlider.addEventListener('input', (e) => { beatSpeed = parseFloat(e.target.value); });
+
+        // --- GESTION DU POÈME ---
+        window.showPoem = function() {
+            document.getElementById('poem-modal').classList.add('active');
+            // Petit effet de pause sur la rotation du cœur quand on lit
+            controls.autoRotate = false;
+        }
+
+        window.closePoem = function() {
+            document.getElementById('poem-modal').classList.remove('active');
+            controls.autoRotate = true;
+        }
+
+    </script>
+</body>
+</html>
